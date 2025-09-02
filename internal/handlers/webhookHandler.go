@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sshfz/api-server-substrate/internal/utils"
 )
 
 func CodeGenerationComplete(context *gin.Context) { //this request will only be called from consumer-service --
@@ -34,8 +35,16 @@ func CodeGenerationComplete(context *gin.Context) { //this request will only be 
 		"stream":        payload.Stream,
 		"status":        "finished",
 	})
+
 	broadcastMessage(message)
 
+	var data map[string]any
+	err = json.Unmarshal([]byte(payload.Stream), &data)
+	if err != nil {
+		log.Println("Unable to process stream")
+	}
+	log.Println("app is running on port http://localhost:", int(data["appPort"].(float64)))
+	utils.StopLoader()
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting code generation completed"})
 }
 
@@ -56,7 +65,8 @@ func PrecheckAction(context *gin.Context) {
 	}
 
 	log.Println("broadcasting message...")
-	log.Println(payload)
+	log.Println("type: ", payload.Type)
+	log.Println("Stream Received: ", payload.Stream)
 
 	message, err := json.Marshal(gin.H{
 		"ARCHIVE_KEY":   "streamchat",
@@ -70,6 +80,7 @@ func PrecheckAction(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
 		return
 	}
+
 	log.Println("Proceeding to broadcast precheck status")
 	broadcastMessage(message)
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})

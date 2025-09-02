@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/common-nighthawk/go-figure"
@@ -16,6 +18,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/sshfz/api-server-substrate/cmd/app/connections"
 	"github.com/sshfz/api-server-substrate/internal/routes"
+	"github.com/sshfz/api-server-substrate/internal/utils"
 )
 
 func main() {
@@ -44,7 +47,7 @@ func main() {
 	color.Unset()
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + utils.GetPort(),
 		Handler: router,
 	}
 
@@ -55,10 +58,13 @@ func main() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
-		log.Println("Server running on http://localhost:8080")
+		log.Println("Server running on http://localhost:" + utils.GetPort())
 	}()
 
-	selector()
+	mode := utils.GetMode()
+	if mode == "cli" {
+		selector()
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -78,53 +84,95 @@ func main() {
 }
 
 func selector() {
-	prompt := promptui.Select{
-		Label: "Choose your model...",
-		Items: []string{"Anthropic Claude 4.1", "GPT-5", "Gemini Flash 2.0"},
-	}
+	// prompt := promptui.Select{
+	// 	Label: "Choose your model...",
+	// 	Items: []string{"Anthropic Claude 4.1", "GPT-5", "Gemini Flash 2.0"},
+	// }
 
-	// Run the picker
-	index, result, err := prompt.Run()
+	// // Run the picker
+	// index, result, err := prompt.Run()
+	// if err != nil {
+	// 	fmt.Println("Prompt failed:", err)
+	// 	return
+	// }
+
+	// fmt.Printf("#%d: %s\n", index, result)
+
+	apiKeyPrompt := promptui.Prompt{
+		Label: "Enter API Key...",
+		Validate: func(input string) error {
+			if len(strings.TrimSpace(input)) == 0 {
+				return errors.New("API key cannot be empty")
+			}
+			return nil
+		},
+	}
+	apiKey, err := apiKeyPrompt.Run()
+	apiKey = strings.ReplaceAll(apiKey, " ", "")
 	if err != nil {
 		fmt.Println("Prompt failed:", err)
 		return
 	}
 
-	fmt.Printf("#%d: %s\n", index, result)
+	utils.SetAPIKey(apiKey)
 
 	descPrompt := promptui.Prompt{
 		Label: "Describe here...",
+		Validate: func(input string) error {
+			if len(strings.TrimSpace(input)) == 0 {
+				return errors.New("App description cannot be empty")
+			}
+			return nil
+		},
 	}
-
 	description, err := descPrompt.Run()
 	if err != nil {
 		fmt.Println("Prompt failed:", err)
 		return
 	}
+	description = strings.TrimSpace(description)
 
-	stop := make(chan bool)
-	go showLoader(stop)
+	utils.StartLoader("thinking")
+	user := utils.GetDefaultUser()
 
-	// Simulate some work (e.g., API call)
-	time.Sleep(3 * time.Second)
+	err = publishMessageToConsumer(user, description)
+	if err != nil {
+		log.Println(err)
+		utils.StopLoader()
+	}
 
-	// Stop loader
-	stop <- true
-
-	log.Println(description)
+	// clearLineAndLog(description)
 }
 
-func showLoader(stop chan bool) {
-	chars := `|/-\`
-	i := 0
-	for {
-		select {
-		case <-stop:
-			return
-		default:
-			fmt.Printf("\rThinking %c", chars[i%len(chars)])
-			i++
-			time.Sleep(100 * time.Millisecond)
-		}
+func clearLineAndLog(message string) {
+	// Clear current line, print log message, then move to new line
+	fmt.Print("\r\033[K")
+	log.Print(message)
+}
+
+func publishMessageToConsumer(user string, prompt string) error {
+	routingKey := "spin.create"
+
+	type amqpReqCLI struct {
+		UserId  string
+		Message string
+		Prompt  string
+		ApiKey  string
 	}
+
+	var req amqpReqCLI = amqpReqCLI{
+		UserId:  user,
+		Message: "spin-project",
+		Prompt:  prompt,
+		ApiKey:  *utils.GetAPIKey(),
+	}
+
+	err := connections.PublishSpinRequest(req, routingKey)
+	if err != nil {
+		log.Println("there was an error while publishing message to consumer")
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
