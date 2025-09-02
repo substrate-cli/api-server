@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sshfz/api-server-substrate/cmd/app/connections"
@@ -10,8 +11,9 @@ import (
 
 func InitiateRequest(context *gin.Context) {
 	type SpinRequest struct {
-		UserId string `json:"userid"`
-		Prompt string `json:"prompt"`
+		UserId      string `json:"userid"`
+		Prompt      string `json:"prompt"`
+		ClusterName string `json:"clustername"`
 	}
 
 	var spinRequest SpinRequest
@@ -25,15 +27,20 @@ func InitiateRequest(context *gin.Context) {
 	routingKey := "spin.create"
 
 	type amqpReq struct {
-		UserId  string
-		Message string
-		Prompt  string
+		UserId      string
+		Message     string
+		Prompt      string
+		ClusterName string
 	}
 
+	clusterName := strings.TrimSpace(spinRequest.ClusterName)
+	clusterName = strings.ReplaceAll(clusterName, " ", "-")
+
 	var req amqpReq = amqpReq{
-		UserId:  spinRequest.UserId,
-		Message: "spin-project",
-		Prompt:  spinRequest.Prompt,
+		UserId:      spinRequest.UserId,
+		Message:     "spin-project",
+		Prompt:      spinRequest.Prompt,
+		ClusterName: clusterName,
 	}
 
 	err = connections.PublishSpinRequest(req, routingKey)

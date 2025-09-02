@@ -98,6 +98,17 @@ func selector() {
 
 	// fmt.Printf("#%d: %s\n", index, result)
 
+	clusterName := promptui.Prompt{
+		Label: "Cluster Name...",
+	}
+	cluster, err := clusterName.Run()
+	cluster = strings.TrimSpace(cluster)
+	cluster = strings.ReplaceAll(cluster, " ", "-")
+	if err != nil {
+		fmt.Println("Prompt failed:", err)
+		return
+	}
+
 	apiKeyPrompt := promptui.Prompt{
 		Label: "Enter API Key...",
 		Validate: func(input string) error {
@@ -135,7 +146,7 @@ func selector() {
 	utils.StartLoader("thinking")
 	user := utils.GetDefaultUser()
 
-	err = publishMessageToConsumer(user, description)
+	err = publishMessageToConsumer(user, description, cluster)
 	if err != nil {
 		log.Println(err)
 		utils.StopLoader()
@@ -150,21 +161,23 @@ func clearLineAndLog(message string) {
 	log.Print(message)
 }
 
-func publishMessageToConsumer(user string, prompt string) error {
+func publishMessageToConsumer(user string, prompt string, cluster string) error {
 	routingKey := "spin.create"
 
 	type amqpReqCLI struct {
-		UserId  string
-		Message string
-		Prompt  string
-		ApiKey  string
+		UserId      string
+		Message     string
+		Prompt      string
+		ApiKey      string
+		ClusterName string
 	}
 
 	var req amqpReqCLI = amqpReqCLI{
-		UserId:  user,
-		Message: "spin-project",
-		Prompt:  prompt,
-		ApiKey:  *utils.GetAPIKey(),
+		UserId:      user,
+		Message:     "spin-project",
+		Prompt:      prompt,
+		ApiKey:      *utils.GetAPIKey(),
+		ClusterName: cluster,
 	}
 
 	err := connections.PublishSpinRequest(req, routingKey)
