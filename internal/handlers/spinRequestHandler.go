@@ -14,6 +14,7 @@ func InitiateRequest(context *gin.Context) {
 		UserId      string `json:"userid"`
 		Prompt      string `json:"prompt"`
 		ClusterName string `json:"clustername"`
+		Model       string `json:"model"`
 	}
 
 	var spinRequest SpinRequest
@@ -31,6 +32,7 @@ func InitiateRequest(context *gin.Context) {
 		Message     string
 		Prompt      string
 		ClusterName string
+		Model       string
 	}
 
 	clusterName := strings.TrimSpace(spinRequest.ClusterName)
@@ -41,6 +43,7 @@ func InitiateRequest(context *gin.Context) {
 		Message:     "spin-project",
 		Prompt:      spinRequest.Prompt,
 		ClusterName: clusterName,
+		Model:       spinRequest.Model,
 	}
 
 	err = connections.PublishSpinRequest(req, routingKey)

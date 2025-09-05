@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/sshfz/api-server-substrate/internal/utils"
 )
@@ -64,9 +65,10 @@ func PrecheckAction(context *gin.Context) {
 		return
 	}
 
+	green := color.New(color.FgGreen).SprintFunc()
 	log.Println("broadcasting message...")
 	log.Println("type: ", payload.Type)
-	log.Println("Stream Received: ", payload.Stream)
+	log.Println("Stream Received: ", green(payload.Stream))
 
 	message, err := json.Marshal(gin.H{
 		"ARCHIVE_KEY":   "streamchat",

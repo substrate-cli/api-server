@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -84,19 +84,19 @@ func main() {
 }
 
 func selector() {
-	// prompt := promptui.Select{
-	// 	Label: "Choose your model...",
-	// 	Items: []string{"Anthropic Claude 4.1", "GPT-5", "Gemini Flash 2.0"},
-	// }
+	prompt := promptui.Select{
+		Label: "Choose your model...",
+		Items: []string{"anthropic", "openai"},
+	}
 
-	// // Run the picker
-	// index, result, err := prompt.Run()
-	// if err != nil {
-	// 	fmt.Println("Prompt failed:", err)
-	// 	return
-	// }
-
-	// fmt.Printf("#%d: %s\n", index, result)
+	// Run the picker
+	index, model, err := prompt.Run()
+	if err != nil {
+		fmt.Println("Prompt failed:", err)
+		return
+	}
+	model = strings.TrimSpace(model)
+	fmt.Printf("#%d: %s\n", index, model)
 
 	clusterName := promptui.Prompt{
 		Label: "Cluster Name...",
@@ -109,44 +109,17 @@ func selector() {
 		return
 	}
 
-	apiKeyPrompt := promptui.Prompt{
-		Label: "Enter API Key...",
-		Validate: func(input string) error {
-			if len(strings.TrimSpace(input)) == 0 {
-				return errors.New("API key cannot be empty")
-			}
-			return nil
-		},
-	}
-	apiKey, err := apiKeyPrompt.Run()
-	apiKey = strings.ReplaceAll(apiKey, " ", "")
-	if err != nil {
-		fmt.Println("Prompt failed:", err)
-		return
-	}
+	apiKey, _ := getAPIKey()
+	description, err := getDesc()
 
 	utils.SetAPIKey(apiKey)
 
-	descPrompt := promptui.Prompt{
-		Label: "Describe here...",
-		Validate: func(input string) error {
-			if len(strings.TrimSpace(input)) == 0 {
-				return errors.New("App description cannot be empty")
-			}
-			return nil
-		},
-	}
-	description, err := descPrompt.Run()
-	if err != nil {
-		fmt.Println("Prompt failed:", err)
-		return
-	}
 	description = strings.TrimSpace(description)
 
 	utils.StartLoader("thinking")
 	user := utils.GetDefaultUser()
 
-	err = publishMessageToConsumer(user, description, cluster)
+	err = publishMessageToConsumer(user, description, cluster, model)
 	if err != nil {
 		log.Println(err)
 		utils.StopLoader()
@@ -161,7 +134,7 @@ func clearLineAndLog(message string) {
 	log.Print(message)
 }
 
-func publishMessageToConsumer(user string, prompt string, cluster string) error {
+func publishMessageToConsumer(user string, prompt string, cluster string, model string) error {
 	routingKey := "spin.create"
 
 	type amqpReqCLI struct {
@@ -170,6 +143,7 @@ func publishMessageToConsumer(user string, prompt string, cluster string) error 
 		Prompt      string
 		ApiKey      string
 		ClusterName string
+		Model       string
 	}
 
 	var req amqpReqCLI = amqpReqCLI{
@@ -178,6 +152,7 @@ func publishMessageToConsumer(user string, prompt string, cluster string) error 
 		Prompt:      prompt,
 		ApiKey:      *utils.GetAPIKey(),
 		ClusterName: cluster,
+		Model:       model,
 	}
 
 	err := connections.PublishSpinRequest(req, routingKey)
@@ -188,4 +163,48 @@ func publishMessageToConsumer(user string, prompt string, cluster string) error 
 	}
 
 	return nil
+}
+
+func getAPIKey() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("Enter API Key: ")
+
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+
+		// Validate the input
+		apiKey := strings.TrimSpace(input)
+		if len(apiKey) == 0 {
+			fmt.Println("❌ API key cannot be empty")
+			continue // Ask again
+		}
+
+		return apiKey, nil
+	}
+}
+
+func getDesc() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("Enter App description: ")
+
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+
+		// Validate the input
+		desc := strings.TrimSpace(input)
+		if len(desc) == 0 {
+			fmt.Println("❌ API key cannot be empty")
+			continue // Ask again
+		}
+
+		return desc, nil
+	}
 }
