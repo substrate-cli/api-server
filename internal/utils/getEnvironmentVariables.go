@@ -8,10 +8,11 @@ import (
 )
 
 type configuration struct {
-	port        string
-	node        string
-	mode        string
-	defaultUser string
+	port            string
+	node            string
+	mode            string
+	defaultUser     string
+	supportedModels string
 }
 
 var config *configuration
@@ -21,10 +22,11 @@ func init() {
 	_ = godotenv.Load()
 
 	config = &configuration{
-		port:        os.Getenv("PORT"),
-		node:        os.Getenv("NODE"),
-		mode:        os.Getenv("MODE"),
-		defaultUser: os.Getenv("DEFAULT_USER"),
+		port:            os.Getenv("PORT"),
+		node:            os.Getenv("NODE"),
+		mode:            os.Getenv("MODE"),
+		defaultUser:     os.Getenv("DEFAULT_USER"),
+		supportedModels: os.Getenv("SUPPORTED_MODELS"),
 	}
 }
 
@@ -54,4 +56,8 @@ func GetAPIKey() *string {
 
 func GetDefaultUser() string {
 	return config.defaultUser
+}
+
+func GetSupportedModels() string {
+	return config.supportedModels
 }

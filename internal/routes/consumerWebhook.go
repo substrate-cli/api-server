@@ -9,4 +9,5 @@ import (
 func codeGenerationWebhook(router *gin.RouterGroup) {
 	router.POST("/webhook/code-generation", middlewares.RequestLogger(), handlers.CodeGenerationComplete)
 	router.POST("/webhook/precheck", middlewares.RequestLogger(), handlers.PrecheckAction)
+	router.POST("/webhook/error", middlewares.RequestLogger(), handlers.ErrorAction)
 }

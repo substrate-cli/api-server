@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sshfz/api-server-substrate/cmd/app/connections"
+	"github.com/sshfz/api-server-substrate/internal/helpers"
 )
 
 func InitiateRequest(context *gin.Context) {
@@ -44,6 +45,11 @@ func InitiateRequest(context *gin.Context) {
 		Prompt:      spinRequest.Prompt,
 		ClusterName: clusterName,
 		Model:       spinRequest.Model,
+	}
+
+	if len(clusterName) != 0 && helpers.CheckIfDirExists(req.ClusterName) {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Directory already exists"})
+		return
 	}
 
 	err = connections.PublishSpinRequest(req, routingKey)

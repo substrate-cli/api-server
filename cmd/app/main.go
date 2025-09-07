@@ -3,20 +3,24 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"strings"
 	"time"
 
+	"github.com/chzyer/readline"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/manifoldco/promptui"
 	"github.com/sshfz/api-server-substrate/cmd/app/connections"
+	"github.com/sshfz/api-server-substrate/internal/helpers"
 	"github.com/sshfz/api-server-substrate/internal/routes"
 	"github.com/sshfz/api-server-substrate/internal/utils"
 )
@@ -84,9 +88,10 @@ func main() {
 }
 
 func selector() {
+	supportedModels := strings.Split(utils.GetSupportedModels(), ",")
 	prompt := promptui.Select{
 		Label: "Choose your model...",
-		Items: []string{"anthropic", "openai"},
+		Items: supportedModels,
 	}
 
 	// Run the picker
@@ -100,6 +105,12 @@ func selector() {
 
 	clusterName := promptui.Prompt{
 		Label: "Cluster Name...",
+		Validate: func(s string) error {
+			if len(strings.TrimSpace(s)) != 0 && helpers.CheckIfDirExists(s) {
+				return errors.New("directory already exists, choose a different name")
+			}
+			return nil
+		},
 	}
 	cluster, err := clusterName.Run()
 	cluster = strings.TrimSpace(cluster)
@@ -166,25 +177,41 @@ func publishMessageToConsumer(user string, prompt string, cluster string, model 
 }
 
 func getAPIKey() (string, error) {
-	reader := bufio.NewReader(os.Stdin)
+	// Configure readline with better settings
+	config := &readline.Config{
+		Prompt:          "Enter API Key: ",
+		HistoryFile:     "", // No history file for security
+		InterruptPrompt: "^C",
+		EOFPrompt:       "exit",
+	}
+
+	rl, err := readline.NewEx(config)
+	if err != nil {
+		return "", err
+	}
+	defer rl.Close()
 
 	for {
-		fmt.Print("Enter API Key: ")
-
-		input, err := reader.ReadString('\n')
+		input, err := rl.Readline()
 		if err != nil {
-			return "", err
+			return "", err // Handle Ctrl+C or EOF
 		}
 
 		// Validate the input
 		apiKey := strings.TrimSpace(input)
 		if len(apiKey) == 0 {
 			fmt.Println("❌ API key cannot be empty")
+			rl.SetPrompt("Enter API Key: ")
 			continue // Ask again
 		}
-
 		return apiKey, nil
 	}
+}
+
+func cleanInput(input string) string {
+	// Regex to match ANSI escape sequences
+	ansiEscape := regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+	return ansiEscape.ReplaceAllString(input, "")
 }
 
 func getDesc() (string, error) {

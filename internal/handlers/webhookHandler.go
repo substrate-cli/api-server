@@ -87,3 +87,45 @@ func PrecheckAction(context *gin.Context) {
 	broadcastMessage(message)
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})
 }
+
+func ErrorAction(context *gin.Context) {
+	type Payload struct {
+		ARCHIVE_KEY string `json:"ARCHIVE_KEY`
+		Type        string `json:"type"`
+		Stream      string `json:"stream"`
+		Status      string `json:"status"`
+		Error       string `json:"error"`
+	}
+
+	var payload Payload
+	err := context.ShouldBindJSON(&payload)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	red := color.New(color.FgRed).SprintFunc()
+	log.Println("broadcasting message...")
+	log.Println("type: ", payload.Type)
+	log.Println("Stream Received: ", red(payload.Stream))
+
+	message, err := json.Marshal(gin.H{
+		"ARCHIVE_KEY":   "streamchat",
+		"broadCastType": payload.Type,
+		"stream":        payload.Stream,
+		"status":        payload.Status,
+		"error":         payload.Error,
+	})
+
+	if err != nil {
+		log.Println("Problem parsing json in request")
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Bad Request"})
+		return
+	}
+	log.Println(payload.Error)
+
+	log.Println("Proceeding to broadcast precheck status")
+	broadcastMessage(message)
+	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})
+}
