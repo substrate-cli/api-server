@@ -31,9 +31,16 @@ func main() {
 	connections.InitRabbitMQ()
 	connections.InitRedis()
 
+	origins := utils.GetSafeOrigins()
+	parts := strings.Split(origins, ",")
+	safeOrigins := make([]string, 0, len(parts))
+	for _, o := range parts {
+		safeOrigins = append(safeOrigins, strings.TrimSpace(o))
+	}
+
 	// Defining the root route
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://your-frontend.com"},
+		AllowOrigins:     safeOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

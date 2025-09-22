@@ -13,6 +13,7 @@ type configuration struct {
 	mode            string
 	defaultUser     string
 	supportedModels string
+	safeOrigins     string
 }
 
 var config *configuration
@@ -27,6 +28,7 @@ func init() {
 		mode:            os.Getenv("MODE"),
 		defaultUser:     os.Getenv("DEFAULT_USER"),
 		supportedModels: os.Getenv("SUPPORTED_MODELS"),
+		safeOrigins:     os.Getenv("SAFE_ORIGINS"),
 	}
 }
 
@@ -44,6 +46,10 @@ func SetAPIKey(key string) {
 
 func GetNode() string {
 	return config.node
+}
+
+func GetSafeOrigins() string {
+	return config.safeOrigins
 }
 
 func GetMode() string {
