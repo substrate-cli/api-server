@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sshfz/api-server-substrate/internal/handlers"
+	"github.com/substrate-cli/api-server/internal/handlers"
 )
 
 func RegisterRoutes(router *gin.Engine) {

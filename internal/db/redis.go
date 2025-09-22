@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sshfz/api-server-substrate/cmd/app/mq"
+	"github.com/substrate-cli/api-server/cmd/app/mq"
 )
 
 var redisClient *redis.Client

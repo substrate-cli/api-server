@@ -19,10 +19,10 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/manifoldco/promptui"
-	"github.com/sshfz/api-server-substrate/cmd/app/connections"
-	"github.com/sshfz/api-server-substrate/internal/helpers"
-	"github.com/sshfz/api-server-substrate/internal/routes"
-	"github.com/sshfz/api-server-substrate/internal/utils"
+	"github.com/substrate-cli/api-server/cmd/app/connections"
+	"github.com/substrate-cli/api-server/internal/helpers"
+	"github.com/substrate-cli/api-server/internal/routes"
+	"github.com/substrate-cli/api-server/internal/utils"
 )
 
 func main() {

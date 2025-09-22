@@ -14,6 +14,7 @@ type configuration struct {
 	defaultUser     string
 	supportedModels string
 	safeOrigins     string
+	redisAddr       string
 }
 
 var config *configuration
@@ -29,11 +30,16 @@ func init() {
 		defaultUser:     os.Getenv("DEFAULT_USER"),
 		supportedModels: os.Getenv("SUPPORTED_MODELS"),
 		safeOrigins:     os.Getenv("SAFE_ORIGINS"),
+		redisAddr:       os.Getenv("REDIS_ADDR"),
 	}
 }
 
 func GetPort() string {
 	return config.port
+}
+
+func GetRedisAddr() string {
+	return config.redisAddr
 }
 
 func SetAPIKey(key string) {

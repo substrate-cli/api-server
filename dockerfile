@@ -1,9 +1,6 @@
-# syntax=docker/dockerfile:1
-
+# api-server-cli/Dockerfile
 # Build stage
-FROM golang:1.24.4-alpine AS builder
-
-RUN apk add --no-cache git
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -12,26 +9,11 @@ RUN go mod download
 
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api-server ./cmd/app
+RUN go build -o api-server-cli .
 
-# Runtime stage
 FROM alpine:latest
+WORKDIR /app
 
-RUN apk --no-cache add ca-certificates
+COPY --from=builder /app/api-server-cli .
 
-WORKDIR /root/
-
-# Copy with absolute paths
-COPY --from=builder /app/api-server /root/api-server
-
-# Set permissions
-RUN chmod +x /root/api-server
-
-# Copy .env file
-COPY .env /root/.env
-
-EXPOSE 8090
-
-# Use absolute path in CMD
-CMD ["/root/api-server"]
+CMD ["./api-server-cli"]

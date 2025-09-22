@@ -7,7 +7,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
-	"github.com/sshfz/api-server-substrate/internal/utils"
+	"github.com/substrate-cli/api-server/internal/utils"
 )
 
 func CodeGenerationComplete(context *gin.Context) { //this request will only be called from consumer-service --
