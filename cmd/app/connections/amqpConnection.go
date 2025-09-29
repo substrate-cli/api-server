@@ -5,14 +5,14 @@ import (
 	"log"
 
 	"github.com/streadway/amqp"
+	"github.com/substrate-cli/api-server/internal/utils"
 )
 
 var channel *amqp.Channel
 var exchangeName = "dev.topic.spinrequest"
 
 func InitRabbitMQ() {
-	// conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(utils.GetAMQPUrl())
 	if err != nil {
 		log.Fatalf("❌ Failed to connect to RabbitMQ: %v", err)
 	}

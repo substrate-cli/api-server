@@ -15,6 +15,7 @@ type configuration struct {
 	supportedModels string
 	safeOrigins     string
 	redisAddr       string
+	amqpUrl         string
 }
 
 var config *configuration
@@ -31,6 +32,7 @@ func init() {
 		supportedModels: os.Getenv("SUPPORTED_MODELS"),
 		safeOrigins:     os.Getenv("SAFE_ORIGINS"),
 		redisAddr:       os.Getenv("REDIS_ADDR"),
+		amqpUrl:         os.Getenv("AMQP_URL"),
 	}
 }
 
@@ -40,6 +42,10 @@ func GetPort() string {
 
 func GetRedisAddr() string {
 	return config.redisAddr
+}
+
+func GetAMQPUrl() string {
+	return config.amqpUrl
 }
 
 func SetAPIKey(key string) {

@@ -28,6 +28,11 @@ func InitiateRequest(context *gin.Context) {
 	}
 	routingKey := "spin.create"
 
+	if strings.ReplaceAll(spinRequest.Prompt, " ", "") == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"err": "prompt should not be empty"})
+		return
+	}
+
 	type amqpReq struct {
 		UserId      string
 		Message     string
