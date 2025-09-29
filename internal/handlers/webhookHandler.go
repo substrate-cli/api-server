@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -26,7 +27,7 @@ func CodeGenerationComplete(context *gin.Context) { //this request will only be 
 		context.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-
+	magenta := color.New(color.FgHiMagenta).SprintFunc()
 	// Notifying UI via WebSocket
 	log.Println("broadcasting message...")
 	log.Println(payload)
@@ -44,7 +45,10 @@ func CodeGenerationComplete(context *gin.Context) { //this request will only be 
 	if err != nil {
 		log.Println("Unable to process stream")
 	}
-	log.Println("app is running on port http://localhost:", int(data["appPort"].(float64)))
+	url := fmt.Sprintf("http://localhost:%d", int(data["appPort"].(float64)))
+	stm := fmt.Sprintf("app is running on %s", magenta(url))
+	log.Println(stm)
+	// log.Println("app is running on port http://localhost:", int(data["appPort"].(float64)))
 	utils.StopLoader()
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting code generation completed"})
 }
