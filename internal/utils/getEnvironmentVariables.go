@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -77,5 +78,6 @@ func GetDefaultUser() string {
 }
 
 func GetSupportedModels() string {
-	return config.supportedModels
+	models := strings.ReplaceAll(config.supportedModels, " ", "")
+	return models
 }
