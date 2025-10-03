@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -14,6 +15,9 @@ type configuration struct {
 	defaultUser     string
 	supportedModels string
 	safeOrigins     string
+	redisAddr       string
+	amqpUrl         string
+	bundle          string
 }
 
 var config *configuration
@@ -29,11 +33,22 @@ func init() {
 		defaultUser:     os.Getenv("DEFAULT_USER"),
 		supportedModels: os.Getenv("SUPPORTED_MODELS"),
 		safeOrigins:     os.Getenv("SAFE_ORIGINS"),
+		redisAddr:       os.Getenv("REDIS_ADDR"),
+		amqpUrl:         os.Getenv("AMQP_URL"),
+		bundle:          os.Getenv("BUNDLE"),
 	}
 }
 
 func GetPort() string {
 	return config.port
+}
+
+func GetRedisAddr() string {
+	return config.redisAddr
+}
+
+func GetAMQPUrl() string {
+	return config.amqpUrl
 }
 
 func SetAPIKey(key string) {
@@ -42,6 +57,10 @@ func SetAPIKey(key string) {
 	} else {
 		log.Println("mutating api key not allowed")
 	}
+}
+
+func GetBundle() string {
+	return config.bundle
 }
 
 func GetNode() string {
@@ -65,5 +84,6 @@ func GetDefaultUser() string {
 }
 
 func GetSupportedModels() string {
-	return config.supportedModels
+	models := strings.ReplaceAll(config.supportedModels, " ", "")
+	return models
 }

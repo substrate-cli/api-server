@@ -1,9 +1,5 @@
-# syntax=docker/dockerfile:1
-
 # Build stage
-FROM golang:1.24.4-alpine AS builder
-
-RUN apk add --no-cache git
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -12,26 +8,18 @@ RUN go mod download
 
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api-server ./cmd/app
+RUN go build -o api-server-cli ./cmd/app
 
-# Runtime stage
 FROM alpine:latest
+WORKDIR /app
 
-RUN apk --no-cache add ca-certificates
+RUN apk add --no-cache netcat-openbsd
 
-WORKDIR /root/
+# Copy binary and entrypoint
+COPY --from=builder /app/api-server-cli .
+COPY entrypoint.sh ./
 
-# Copy with absolute paths
-COPY --from=builder /app/api-server /root/api-server
+RUN chmod +x entrypoint.sh
 
-# Set permissions
-RUN chmod +x /root/api-server
-
-# Copy .env file
-COPY .env /root/.env
-
-EXPOSE 8090
-
-# Use absolute path in CMD
-CMD ["/root/api-server"]
+# Run entrypoint
+CMD ["/app/entrypoint.sh"]

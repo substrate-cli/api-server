@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sshfz/api-server-substrate/cmd/app/connections"
-	"github.com/sshfz/api-server-substrate/internal/helpers"
+	"github.com/substrate-cli/api-server/cmd/app/connections"
+	"github.com/substrate-cli/api-server/internal/helpers"
 )
 
 func InitiateRequest(context *gin.Context) {
@@ -27,6 +27,11 @@ func InitiateRequest(context *gin.Context) {
 		return
 	}
 	routingKey := "spin.create"
+
+	if strings.ReplaceAll(spinRequest.Prompt, " ", "") == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"err": "prompt should not be empty"})
+		return
+	}
 
 	type amqpReq struct {
 		UserId      string
