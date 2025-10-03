@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +14,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/substrate-cli/api-server/cmd/app/connections"
-	"github.com/substrate-cli/api-server/internal/helpers"
+	// "github.com/substrate-cli/api-server/internal/helpers"
 	"github.com/substrate-cli/api-server/internal/routes"
 	"github.com/substrate-cli/api-server/internal/utils"
 )
@@ -69,7 +68,8 @@ func main() {
 
 	mode := utils.GetMode()
 	if mode == "cli" {
-		helpers.Selector()
+		// helpers.Selector()
+		utils.StartLoader("thinking")
 	}
 
 	quit := make(chan os.Signal, 1)
@@ -87,10 +87,4 @@ func main() {
 	}
 
 	log.Println("Server exiting gracefully")
-}
-
-func clearLineAndLog(message string) {
-	// Clear current line, print log message, then move to new line
-	fmt.Print("\r\033[K")
-	log.Print(message)
 }

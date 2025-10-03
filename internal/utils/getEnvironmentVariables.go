@@ -17,6 +17,7 @@ type configuration struct {
 	safeOrigins     string
 	redisAddr       string
 	amqpUrl         string
+	bundle          string
 }
 
 var config *configuration
@@ -34,6 +35,7 @@ func init() {
 		safeOrigins:     os.Getenv("SAFE_ORIGINS"),
 		redisAddr:       os.Getenv("REDIS_ADDR"),
 		amqpUrl:         os.Getenv("AMQP_URL"),
+		bundle:          os.Getenv("BUNDLE"),
 	}
 }
 
@@ -55,6 +57,10 @@ func SetAPIKey(key string) {
 	} else {
 		log.Println("mutating api key not allowed")
 	}
+}
+
+func GetBundle() string {
+	return config.bundle
 }
 
 func GetNode() string {

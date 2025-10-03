@@ -18,7 +18,11 @@ func StartLoader(message string) {
 	stopChan = make(chan bool)
 
 	go func() {
-		chars := `|/-\`
+		chars2 := `|/-\`
+		chars := []string{"🌱", "🌿", "🍃", "🌳",
+			"🔥", "⚡", "✨", "💫",
+			"😅", "🤔", "🙂", "😎", "🤩", "🥳",
+			"🌻", "🌸", "🌼", "🌺"}
 		i := 0
 		for {
 			select {
@@ -26,7 +30,7 @@ func StartLoader(message string) {
 				fmt.Print("\r\033[K") // clear line
 				return
 			default:
-				fmt.Printf("\r\033[K%s %c", message, chars[i%len(chars)])
+				fmt.Printf("\r\033[K%s %s %c", message, chars[i%len(chars)], chars2[i%len(chars2)])
 				i++
 				time.Sleep(100 * time.Millisecond)
 			}

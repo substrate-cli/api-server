@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/exec"
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -137,19 +135,5 @@ func ErrorAction(context *gin.Context) {
 	utils.StopLoader()
 	log.Println("restarting server...")
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})
-	helpers.Selector()
-}
-
-func restart() {
-	execSpec := exec.Command(os.Args[0], os.Args[1:]...)
-	execSpec.Stdout = os.Stdout
-	execSpec.Stderr = os.Stderr
-	execSpec.Stdin = os.Stdin
-
-	if err := execSpec.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Wait for the new process to finish (or just exit immediately)
-	os.Exit(0) // The new process will continue running
+	helpers.Selector() //restarting selector
 }
