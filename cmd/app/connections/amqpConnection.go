@@ -56,5 +56,6 @@ func PublishSpinRequest(payload interface{}, routingKey string) error {
 		log.Printf("❌ Failed to publish message: %v", err)
 	}
 	log.Printf("Published: [%s] %s", routingKey, messageBytes)
+
 	return nil
 }
