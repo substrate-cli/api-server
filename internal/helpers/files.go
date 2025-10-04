@@ -14,10 +14,16 @@ func CheckIfDirExists(clusterName string) bool {
 		log.Println("unable to retrieve home directory")
 		return false
 	}
+	rootProjectPath := ""
+	// if utils.GetBundle() == "docker" {
+	// 	return false
+	// }
 	if utils.GetBundle() == "docker" {
-		return false
+		homeDir = "/apps"
+		rootProjectPath = filepath.Join(homeDir, "substrate-home", clusterName)
+	} else {
+		rootProjectPath = filepath.Join(homeDir, "Desktop", "substrate-home", clusterName)
 	}
-	rootProjectPath := filepath.Join(homeDir, "Desktop", "substrate-home", clusterName)
 
 	info, err := os.Stat(rootProjectPath)
 	if os.IsNotExist(err) {

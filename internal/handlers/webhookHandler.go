@@ -8,6 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"github.com/substrate-cli/api-server/internal/db"
 	"github.com/substrate-cli/api-server/internal/helpers"
 	"github.com/substrate-cli/api-server/internal/utils"
 )
@@ -46,11 +47,20 @@ func CodeGenerationComplete(context *gin.Context) { //this request will only be 
 	if err != nil {
 		log.Println("Unable to process stream")
 	}
-	url := fmt.Sprintf("http://localhost:%d", int(data["appPort"].(float64)))
-	stm := fmt.Sprintf("app is running on %s", magenta(url))
-	log.Println(stm)
+	if val, ok := data["appPort"]; ok {
+		url := fmt.Sprintf("http://localhost:%d", int(val.(float64)))
+		stm := fmt.Sprintf("app is running on %s", magenta(url))
+		log.Println(stm)
+	}
+
+	if val, ok := data["clusterName"]; ok {
+		stm := fmt.Sprintf("cluster name => %s", magenta(val.(string)))
+		log.Println(stm)
+	}
+
 	// log.Println("app is running on port http://localhost:", int(data["appPort"].(float64)))
 	utils.StopLoader()
+	db.SaveRedis(utils.GetDefaultUser(), "finished")
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting code generation completed"})
 }
 
@@ -134,6 +144,7 @@ func ErrorAction(context *gin.Context) {
 	broadcastMessage(message)
 	utils.StopLoader()
 	log.Println("restarting server...")
+	db.SaveRedis(utils.GetDefaultUser(), "failed")
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})
 	helpers.Selector() //restarting selector
 }

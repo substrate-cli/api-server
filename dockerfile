@@ -1,6 +1,8 @@
 # Build stage
 FROM golang:1.24-alpine AS builder
 
+LABEL org.opencontainers.image.source https://github.com/substrate-cli/api-server
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -23,3 +25,5 @@ RUN chmod +x entrypoint.sh
 
 # Run entrypoint
 CMD ["/app/entrypoint.sh"]
+
+
