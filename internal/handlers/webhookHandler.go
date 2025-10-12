@@ -110,6 +110,7 @@ func ErrorAction(context *gin.Context) {
 		Stream      string `json:"stream"`
 		Status      string `json:"status"`
 		Error       string `json:"error"`
+		IsRetry     bool   `json:"isRetry"`
 	}
 
 	var payload Payload
@@ -131,6 +132,7 @@ func ErrorAction(context *gin.Context) {
 		"stream":        payload.Stream,
 		"status":        payload.Status,
 		"error":         payload.Error,
+		"isRetry":       payload.IsRetry,
 	})
 
 	if err != nil {
@@ -143,8 +145,10 @@ func ErrorAction(context *gin.Context) {
 	log.Println("Proceeding to broadcast precheck status")
 	broadcastMessage(message)
 	utils.StopLoader()
-	log.Println("restarting server...")
 	db.SaveRedis(utils.GetDefaultUser(), "failed")
 	context.JSON(http.StatusOK, gin.H{"message": "broadcasting precheck completed."})
-	helpers.Selector() //restarting selector
+	if !payload.IsRetry {
+		log.Println("restarting server...")
+		helpers.Selector() //restarting selector
+	}
 }
