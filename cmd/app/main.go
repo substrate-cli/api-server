@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/common-nighthawk/go-figure"
@@ -22,7 +23,6 @@ import (
 
 func main() {
 	router := gin.Default()
-
 	connections.InitRabbitMQ()
 	connections.InitRedis()
 
@@ -70,6 +70,8 @@ func main() {
 
 	mode := utils.GetMode()
 	if mode == "cli" {
+		time.Sleep(5 * time.Second)
+		clearInputBuffer()
 		helpers.Selector()
 	}
 
@@ -88,4 +90,17 @@ func main() {
 	}
 
 	log.Println("Server exiting gracefully")
+}
+
+func clearInputBuffer() {
+	// Drain stdin
+	var buf [1]byte
+	for {
+		syscall.SetNonblock(int(os.Stdin.Fd()), true)
+		n, _ := os.Stdin.Read(buf[:])
+		if n == 0 {
+			break
+		}
+	}
+	syscall.SetNonblock(int(os.Stdin.Fd()), false)
 }
