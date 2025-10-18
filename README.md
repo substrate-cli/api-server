@@ -1,9 +1,7 @@
 # api-server
 entry point to substrate cli
 
-# environment vars ----
-
-# ***********
+# environment variables
 
 ```bash
 SAFE_ORIGINS="http://localhost:8090, http://localhost:8080, http://localhost:3000"
@@ -17,11 +15,11 @@ AMQP_URL="amqp://guest:guest@localhost:5672/"
 BUNDLE="server"
 ```
 
-# ***********
-
 # run api-server
 
+```bash
 go run ./cmd/app
+```
 
 this is an entry point to substrate-cli, for more informations, follow instrcutions on https://trysubstrate.com/notes
 
