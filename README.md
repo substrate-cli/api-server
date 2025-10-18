@@ -1,4 +1,3 @@
-```markdown
 # api-server
 entry point to substrate cli
 
@@ -20,7 +19,7 @@ BUNDLE="server"
 
 # ***********
 
-# run command
+# run api-server
 
 go run ./cmd/app
 
@@ -28,6 +27,5 @@ this is an entry point to substrate-cli, for more informations, follow instrcuti
 
 consumer-service - https://github.com/substrate-cli/consumer-service-cli
 llm-node - https://github.com/substrate-cli/llm-node-cli
-```
 
 
