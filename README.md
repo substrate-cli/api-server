@@ -21,6 +21,18 @@ BUNDLE="server"
 go run ./cmd/app
 ```
 
+# APIs 
+
+```bash 
+curl -X POST http://localhost:8080/api/spin-request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "build me an elegant portfolio website with dark theme for a full stack developer",
+    "model": "anthropic",
+    "clustername": "folio-demo"
+  }'
+```
+
 this is an entry point to substrate-cli, for more informations, follow instructions on https://trysubstrate.com/notes.   
 consumer-service - https://github.com/substrate-cli/consumer-service-cli.  
 llm-node - https://github.com/substrate-cli/llm-node-cli
