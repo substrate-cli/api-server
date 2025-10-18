@@ -21,7 +21,7 @@ BUNDLE="server"
 go run ./cmd/app
 ```
 
-this is an entry point to substrate-cli, for more informations, follow instrcutions on https://trysubstrate.com/notes.   
+this is an entry point to substrate-cli, for more informations, follow instructions on https://trysubstrate.com/notes.   
 consumer-service - https://github.com/substrate-cli/consumer-service-cli.  
 llm-node - https://github.com/substrate-cli/llm-node-cli
 
