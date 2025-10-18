@@ -6,6 +6,7 @@ entry point to substrate cli
 
 # ***********
 
+```bash
 SAFE_ORIGINS="http://localhost:8090, http://localhost:8080, http://localhost:3000"
 NODE="api-server"
 PORT=8080
@@ -15,6 +16,7 @@ SUPPORTED_MODELS="anthropic,openai,gemini"
 REDIS_ADDR="localhost:6379"
 AMQP_URL="amqp://guest:guest@localhost:5672/"
 BUNDLE="server"
+```
 
 # ***********
 
