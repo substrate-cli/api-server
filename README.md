@@ -14,7 +14,6 @@ REDIS_ADDR="localhost:6379"
 AMQP_URL="amqp://guest:guest@localhost:5672/"
 BUNDLE="server"
 ```
-
 # run api-server
 
 ```bash
