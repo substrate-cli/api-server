@@ -17,6 +17,7 @@ BUNDLE="server"
 # run api-server
 
 ```bash
+go mod tidy
 go run ./cmd/app
 ```
 
