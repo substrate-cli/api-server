@@ -37,7 +37,7 @@ func SaveRedis(key string, value string) {
 }
 
 func DeleteRedisKey(key string) {
-	ctx := context.Background() // you can pass a context from caller if needed
+	ctx := context.Background()
 	rdb := mq.GetRedisConnection()
 	result, err := rdb.Del(ctx, key).Result()
 	if err != nil {
