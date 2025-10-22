@@ -44,7 +44,7 @@ func PublishSpinRequest(payload interface{}, routingKey string) error {
 	}
 	err = channel.Publish(
 		exchangeName, // exchange
-		routingKey,   // routing key (e.g., "spin.create")
+		routingKey,   // routing key
 		false,        // mandatory
 		false,        // immediate
 		amqp.Publishing{
