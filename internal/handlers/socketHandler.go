@@ -22,7 +22,7 @@ var upgrader = websocket.Upgrader{
 			return true
 		}
 
-		// You can add specific allowed origins here
+		// safe origins for microservices ----
 		allowedOrigins := []string{
 			"http://localhost:3000",
 			"http://localhost:5173", // Vite default
